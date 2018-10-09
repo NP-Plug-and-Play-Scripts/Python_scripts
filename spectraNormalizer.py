@@ -106,21 +106,24 @@ def writeNewFile(newFile,normSpecList):
 
 """
 runs the main method.
+requires the path to a the result folder that contains the mass spectra 
+and the common part of the name of the file "ethers_131_part_" for example.
 """
-def main():
-    filePath = "/mnt/scratch/ozing003/CFM_workplace/cfmData/results/";
+def main(resultPath,fileName):
+    filePath = resultPath;
     #for file in directory if file ends with 2 numbers followed by _output.mgf save the file in a list.
     #match example   "smiles_1000_part_01_output.mgf"
-    foundFiles = [f for f in os.listdir(filePath) if re.search(r'\w*[0-9]{2}_output.mgf',f)];
-    
+    foundFiles = [f for f in os.listdir(filePath) if re.search(re.escape(fileName) + r'[0-9]{2}_output.mgf',f)];
     for aFile in foundFiles:
-        splitName = aFile.split("_");
+        splitName = aFile.split(".");
         #reformat the old name with normalized in it 
-        #output example given "smiles_1000_part_01_output.mgf" --> "smiles_1000_part_01_normalized_output.mgf"
-        newName = "_".join(splitName[0:4]) + "_normalized_" + splitName[4];
-        
+        #output example given "smiles_1000_part_01_output.mgf" --> "smiles_1000_part_01_output_normalized.mgf"
+        newName = splitName[0] + "_normalized." + splitName[1];
         spectraList = makeSpectraList(filePath + "" + aFile);
         newFilePath = filePath + "" + newName;
         writeNewFile(newFilePath,spectraList);
+        os.system("rm {}".format(filePath + aFile));
 
-main();
+if __name__ == '__main__':
+	main(sys.argv[1],sys.argv[2]);
+

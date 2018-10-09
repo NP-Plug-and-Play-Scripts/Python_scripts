@@ -9,6 +9,7 @@ Made by: Rutger Ozinga
 Last edit: 9/14/2018
 """
 
+energyList = [10,20,40];
 
 """
 Merges a dict containing weights as key and a list of intensities as value. in to a weight with a single intensity.
@@ -21,13 +22,12 @@ def spectraMerge(spectraDict):
     keyList = spectraDict.keys();
     keyList.sort();
     prevWeight = 0
-    for weight in keyList:
+    #for weight in keyList:
         #combine peaks if they have a weight that is 1 away from eachother. (CHECK THIS PART)
-        if -1 <= (prevWeight-weight) <= 1: 
-            print(prevWeight, weight);
-            spectraDict[weight] = spectraDict[prevWeight] + spectraDict[weight];
-            del spectraDict[prevWeight];
-        prevWeight = weight; 
+    #    if -1 == (prevWeight-weight) == 1: 
+    #        spectraDict[weight] = spectraDict[prevWeight] + spectraDict[weight];
+    #        del spectraDict[prevWeight];
+    #    prevWeight = weight; 
     for weight in spectraDict.keys():
         specSum = 0
         #loop through the intensities in the list.
@@ -36,18 +36,20 @@ def spectraMerge(spectraDict):
         #divide the intensity by 3 to normalize the values. (CHANGE THIS FOR FILES TO SEE WHAT THE EFFECT ON THE RESULTS IS)
         mergedSpec = [weight, round(specSum/3,5)]; 
         #filter out low intensities (FIGURE OUT A GOOD THRESHOLD)
-        if mergedSpec[1] > 0.7:
+        if mergedSpec[1] > 120:
             mergedList.append(mergedSpec);
         specSum = 0;
     mergedList.sort();
     return mergedList;
-
+    
+    
+    
 """
 this method takes as input a list lists containing the data of 3 spectra
 each list in the list contains the data of one spectra in mgf format.
 It then combines these 3 spectra in to 1 spectra. First it takes the first 4 lines of the first spectra.
 This contains the header of the spectra, the only difference between these 4 lines in the 3 spectra is the line 
-"Energyxx" this tells what energy level was used in cfm-id. since we combine it, its changed to EnergyCombi.
+"Energyxx" this tells what energy level was used in cfm-id. since we combine it, its changed to EnergyCombined along with the 3 energy levels used.
 after these four lines the next lines till it reaches the end will contain a peak with its weight and intensity.
 These are added to a dictionary. Key is the weight and the value is a list containing the intensities. 
 All peaks with the same weight are combined and the intensities added to the list corresponding to the weight
@@ -64,7 +66,8 @@ def combineSpectraSet(spectraSet):
             for headerLine in range(4):
                 #change the ID line from Energy0 to EnergyCombi
                 if headerLine == 3:
-                    replaced = re.sub('Energy\d', 'EnergyCombi',spectraSet[x][headerLine]);
+                    newEnergy = 'EnergyCombined {0}eV {1}eV {2}eV'.format(energyList[0],energyList[1],energyList[2]);
+                    replaced = re.sub('Energy\d', newEnergy, spectraSet[x][headerLine]);
                     combinedSpectra.append(replaced);
                 else:
                     combinedSpectra.append(spectraSet[x][headerLine]);
@@ -84,7 +87,7 @@ def combineSpectraSet(spectraSet):
         combinedSpectra.append(str(spectra[0]) + " " + str(spectra[1]));
     combinedSpectra.append("END IONS");
     return combinedSpectra;
-    
+
 """
 takes a list of spectra and each step it takes 3 spectra (belonging to low medium and high voltages)
 then combines them in a list and sends the list of 3 spectra to the function combineSpectraSet.
@@ -104,6 +107,7 @@ def createSpectraSets(spectraList):
         #empty spectraSet for the next 3 spectra in the loop.
         spectraSet = [];
     return combinedCollection;
+    
 """
 reads to a given path adds line to list ill it reaches END IONS then it 
 adds the list to a spectra List and continues with the next.
@@ -121,6 +125,7 @@ def createSpectraList(filePath):
         else: 
             spectra.append(line.strip());
     return spectraList;
+    
 """
 takes a list of lists containing the combined spectra and puts them in to a new files 
 requires a list of lists and a file path.
@@ -131,15 +136,26 @@ def writeNewFile(newFile,combiSpecCol):
         for line in spectra:
             newSpecFile.write(line + "\n");
     newSpecFile.close();
-"""main method runs the other methods.""" 
-def main():
-    filePath = "/mnt/scratch/ozing003/CFM_workplace/cfmData/results/testResults.mgf";
-    newFile = "/mnt/scratch/ozing003/CFM_workplace/cfmData/results/smiles_1000_part_01_merged_weightFiltered_intensityFiltered_output.mgf";
-    spectraList = createSpectraList(filePath);
-    #contains all the combined spectra in a list of lists.
-    combiSpecCol = createSpectraSets(spectraList);
-    writeNewFile(newPath,combiSpecCol);
     
+"""
+main method runs the other methods.
+requires the path to a the result folder that contains the mass spectra 
+and the common part of the name of the file "ethers_131_part_" for example.
+""" 
+def main(resultPath, fileName):
+    filePath = resultPath;
+    foundFiles = [f for f in os.listdir(filePath) if re.search(re.escape(fileName) + r'[0-9]{2}_output_normalized.mgf',f)];
+    for aFile in foundFiles:
+        splitName = aFile.split(".");
+        newName = splitName[0] + "_merged." + splitName[1];
+        spectraList = createSpectraList(filePath + aFile);
+        #contains all the combined spectra in a list of lists.
+        combiSpecCol = createSpectraSets(spectraList);
+        newFilePath = filePath + "" + newName;
+        writeNewFile(newFilePath,combiSpecCol);
+        os.system("rm {}".format(filePath + aFile));
+        
+if __name__ == '__main__':
+	main(sys.argv[1],sys.argv[2]);
 
-main();
             
