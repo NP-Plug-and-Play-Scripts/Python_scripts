@@ -1,4 +1,15 @@
 #!/usr/bin/env python3
+
+"""
+Takes the the mgf output of cfm_predict thats normalized and merged and adds the ID, InchiKey, smile and IUPAC fields to each spectra.
+
+CFM_pipeline Part 6:
+Takes the output of steps 2 and 5 and puts them together in new files that end with MS2LDA_Ready.mgf these files can already be put in MS2LDA.
+However 1 more step will merge the splitted files back together. (INSERT NAME OF NEXT STEP)
+Made by: Rutger Ozinga 
+Last edit: 10/10/2018
+"""
+
 import os;
 import sys;
 import re;
@@ -23,7 +34,14 @@ def makeSpectraList(spectraPath):
         else: 
             spectra.append(line.strip());
     return spectraList;
-
+"""
+Adds the info from the spectra infolist (id,smile and inchikey) to the spectra in the spectra list.
+each spectra finds the title which in the case of cfm id is in location 4 for the spectra (so 3 position in a list).
+Finds the spectra id in the given spectrainfo dict, and merges the info. Also adds a IUPAC field when the gets added to the database 
+that way it can be added to the MS2LDA output.
+spectraList = list of lists with each list containing a spectra.
+spectraInfo = a dictionary containing the NP-DB idś as key and a list of smile, inchikey combinations as values
+"""
 def addSpectraInfo(spectraList,spectraInfo):
     editedSpectraList = [];
     for spectra in spectraList:
@@ -72,6 +90,12 @@ def writeFile(editedSpectra, newFile):
             editSpecFile.write(str(line) + "\n");
     editSpecFile.close();
 
+"""
+Main function runs the rest of the script.
+smilePath = path to the smile data
+resultPath = path to the spectra result files
+fileName = beginning part of the file names (ethers_131_part_) 
+"""
 def main(smilePath,resultPath,fileName):
     infoPath = smilePath;
     spectraPath = resultPath;

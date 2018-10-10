@@ -1,13 +1,19 @@
 #!/usr/bin/env python
 
-import os;
-import re;
 """
 Merges the output of cfm-id (mgf format), which contains 3 different energy level, in to one spectra.
 
+CFM_pipeline Part 5:
+takes the output of spectraNormalizer and merges the normalized spectra of each molecule (cfm creates 3 spectra for each molecule on 3 energy levels.)
+It creates new files containing the normalized merged spectra. next step in the pipeline is spectraDataEditor.py.
+
 Made by: Rutger Ozinga 
-Last edit: 9/14/2018
+Last edit: 10/10/2018
 """
+
+import os;
+import re;
+
 
 energyList = [10,20,40];
 

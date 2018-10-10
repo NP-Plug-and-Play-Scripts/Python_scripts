@@ -3,8 +3,11 @@
 This script splits a given file in to smaller parts containing a equal amount of lines (or close to in case the total is uneven)
 the cores is the amount of parts you want to split the file in to.
 
-originaly made to split a file containing smile strings in to equal parts that would be ran through anothe program.
-with the file being in parts, that way multiple can be running in the background on seperate cores.
+CFM_pipeline step 1:
+This is the first script to be ran in the pipeline it takes the given .csv file and splits it in to equal parts. 
+Done to reduce the time needed in the cfm_predict step. Next script in the pipeline is createInchiKeys.py.
+Made by: Rutger Ozinga 
+Last edit: 10/10/2018
 """
 
 import sys;

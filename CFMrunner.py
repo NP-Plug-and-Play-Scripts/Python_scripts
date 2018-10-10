@@ -1,4 +1,17 @@
 #!/usr/bin/env python3
+"""
+Runs all the files in a directory with a given name through cfm_predict. required a path to the cfm-id bin, results folder for output
+cfmData folder for input and the name of the file (name is taken from the file in the fileSplitter.py script normaly looks like ether_131_part_)
+then runs all of the files that correspond to the pattern on seperate cores in cfm_predict (10 by default will add the option to change it later).
+
+CFM_pipeline Step 3: 
+Third step in the pipeline (although it can be second too since its only dependant on fileSplitter.py). Takes the NP-ID smile combinations 
+and puts them in cfm_predict to genereate the in-silico spectra. In time i hope to add more options to change the settings more easily. next
+next script is spectraNormalizer.
+
+Made by: Rutger Ozinga 
+Last edit: 10/10/2018
+"""
 import os;
 import sys;
 import re;

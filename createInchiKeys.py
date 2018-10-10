@@ -1,4 +1,15 @@
 #!/usr/bin/env python3
+"""
+This script turns a file of NP-ID and SMILES strings combinations in to a file that contains NP-ID, SMILES and InchiKey.
+WARNING this requires molconvert a tool included in jchem. https://chemaxon.com/products/instant-jchem/download. 
+
+CFM_pipeline step 2:
+Second step in the pipeline. takes each of the splitted files and adds the inchi keys to it so they can later be added to the mgf files.
+next script run is CFMrunner.py.
+
+Made by: Rutger Ozinga 
+Last edit: 10/10/2018
+"""
 import os;
 import re;
 import sys;
@@ -34,9 +45,9 @@ The generated file gets deleted in the end.
 
 """
 def createInchiKeys(molConvertPath,tempPath,newPath):
-	newOut = outPath ;
+	newOut = tempPath ;
 	#run commandline program molconvert to turn a file of smiles strings in to a file of inchikeys.
-	os.system("{0} -2:e inchikey {1} -o {2}".format(molConvertPath,newPath,newOut));
+	os.system("{0} -2:e inchikey {1} -o {2}".format(molConvertPath + "molconvert" ,newPath,newOut));
 	inchiKeyList = [];
 	for line in open(newOut,"r"):
 		inchiKeyList.append(line);
@@ -61,12 +72,10 @@ def main(molConvertPath,filePath, fileName):
 	for aFile in foundFiles:
 		splitName = aFile.split(".");
 		path = filePath + aFile;
-        
-		#temporary files to store the smiles strings in and the inchi keyś
+		#temporary files to store the smiles strings in and the inchi keys
 		newPath = filePath + "tempSmiles.txt";
-        tempPath = filePath + "tempInchiKeys.txt";
-        
-        #new path for the output of the dataFile. Will contain the ID,SMILES,InchIKey.
+		tempPath = filePath + "tempInchiKeys.txt";
+		#new path for the output of the dataFile. Will contain the ID,SMILES,InchIKey.
 		finalOutput = filePath + splitName[0] + "_dataFile." + splitName[1];
 		idList, smileList = createList(path);
 		newFile(smileList,newPath);
@@ -75,4 +84,4 @@ def main(molConvertPath,filePath, fileName):
 	os.system("rm {}".format(newPath));
 	
 if __name__ == '__main__':
-	sys.exit(main())
+	main(sys.argv[1],sys.argv[2],sys.argv[3]);
