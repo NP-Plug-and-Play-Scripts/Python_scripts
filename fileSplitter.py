@@ -54,11 +54,11 @@ takes  a file and adds all lines to a list. Then sorts the List based on length.
 This method requires a fielPath.
 """
 def fileLengthSorter(filePath):
-    fileList = [];
-    for line in open(filePath,"r"):
-        fileList.append(line.replace(","," "));
-    fileList = sorted(fileList,key=len);
-    return fileList;
+	fileList = [];
+	for line in open(filePath,"r"):
+		fileList.append(line.replace(","," "));
+	fileList = sorted(fileList,key=len);
+	return fileList;
 
 """
 given a dictionary containing numbers as keys and a list of lines it puts the content of the library
@@ -72,19 +72,20 @@ def createFiles(partDict,smileFile,newPath):
 		partNum = "{0:02d}".format(part-1)
 		filePart = open(newPath + newFileName + partNum + ".txt", "w"); 
 		for line in partDict[part]:
-			filePart.write(line);
+			splitLine = line.split();
+			filePart.write(splitLine[0] + " " + splitLine[1] + "\n");
 	return newFileName;
 """
 Main Method calls all other methods
 requires the path to a the folder that contains the csv file with ID smile combinations 
 """
 def main(filePath):
+	print(filePath);
 	#path to the file that needs to be ran through cfm_id
 	smileFile = filePath;
 	#path to the new File. Split on / remove the last entry (old file Name) and then put it back together.
-	splitPath =filePath.split("/");
+	splitPath = filePath.split("/");
 	newPath = "/".join(splitPath[:-1]) + "/";
-	
 	#length of the file. is calculated in lineDivider()
 	fileLength = 0;
 	sortedFileList = fileLengthSorter(smileFile);

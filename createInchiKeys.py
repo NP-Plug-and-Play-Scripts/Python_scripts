@@ -16,17 +16,25 @@ import sys;
 
 
 """
-creates 2 lists with the given file.
-File should contain a ID and a smiles string.
+creates 3 lists with the given file.
+File should contain a ID, a neutral smiles string and an original smiles string.
 """
-def createList(path):
+def createLists(path):
 	idList = [];
 	smileList = [];
+	altSmileList = [];
 	for line in open(path):
-		splittedLine = line.split();
+		line = line.strip();
+		splittedLine = line.split(",");
 		idList.append(splittedLine[0]);
-		smileList.append(splittedLine[1]);
-	return idList, smileList;
+		if len(splittedLine) > 2:
+			smileList.append(splittedLine[1]);
+			altSmileList.append(splittedLine[2]);
+
+		else:
+			smileList.append(splittedLine[1]);
+			altSmileList.append(splittedLine[1]);
+	return idList, smileList, altSmileList;
 
 """
 creates a newFile from a list of smiles.
@@ -45,7 +53,8 @@ The generated file gets deleted in the end.
 
 """
 def createInchiKeys(molConvertPath,tempPath,newPath):
-	newOut = tempPath ;
+	newOut = tempPath;
+	print(newPath)
 	#run commandline program molconvert to turn a file of smiles strings in to a file of inchikeys.
 	os.system("{0} -2:e inchikey {1} -o {2}".format(molConvertPath + "molconvert" ,newPath,newOut));
 	inchiKeyList = [];
@@ -55,32 +64,40 @@ def createInchiKeys(molConvertPath,tempPath,newPath):
 	return inchiKeyList;
 
 """
-
+takes the id list (contains all the id's) smile list, alternative smile list, inchiKeyList, alternative inchikeyList and the path to 
+the new file and writes the data in to the file
 """
-def makeInchiSmileFile(idList,smileList,inchiKeyList, finalOutput):
+def makeInchiSmileFile(idList,smileList,altSmileList,inchiKeyList, altInchiKeyList, finalOutput):
 	finalOut = open(finalOutput,"w");
+	print(len(idList), len(smileList),len(altSmileList), len(inchiKeyList), len(altInchiKeyList));
 	for i in range(len(idList)):
-		newLine = idList[i] + " " + smileList[i] + " " + inchiKeyList[i];
-		finalOut.write(newLine);
+		if smileList[i] != altSmileList[i]:
+			#strip for the new inchi keys because molconvert realy likes to add line endings
+			newLine = idList[i] + " " + smileList[i] + " " + altSmileList[i] + " " + inchiKeyList[i].strip() + " " + altInchiKeyList[i];
+			finalOut.write(newLine);
+		else:
+			newLine = idList[i] + " " + smileList[i] + " " + inchiKeyList[i];
+			finalOut.write(newLine);
 	finalOut.close();
 	
 def main(molConvertPath,filePath, fileName):
+	newAltPath = filePath + "tempAltSmiles.txt";
+	print('working in ' + filePath + fileName);
+	splitName = fileName.split(".");
+	path = filePath + fileName;
+	#temporary files to store the smiles strings in and the inchi keys
 	newPath = filePath + "tempSmiles.txt";
-	#for fileName (normaly something like "ethers_123_part_") in directory if file ends with 2 numbers followed by .txt save the file in a list.
-	#match example   "smiles_1000_part_01.txt"
-	foundFiles = [f for f in os.listdir(filePath) if re.search(re.escape(fileName) + r'[0-9]{2}.txt',f)];
-	for aFile in foundFiles:
-		splitName = aFile.split(".");
-		path = filePath + aFile;
-		#temporary files to store the smiles strings in and the inchi keys
-		newPath = filePath + "tempSmiles.txt";
-		tempPath = filePath + "tempInchiKeys.txt";
-		#new path for the output of the dataFile. Will contain the ID,SMILES,InchIKey.
-		finalOutput = filePath + splitName[0] + "_dataFile." + splitName[1];
-		idList, smileList = createList(path);
-		newFile(smileList,newPath);
-		inchiKeyList = createInchiKeys(molConvertPath,tempPath,newPath);
-		makeInchiSmileFile(idList,smileList,inchiKeyList, finalOutput);
+	newAltPath = filePath + "tempAltSmiles.txt";
+	tempPath = filePath + "tempInchiKeys.txt";
+	tempAltPath = filePath + "tempAltInchiKeys.txt";
+	#new path for the output of the dataFile. Will contain the ID,SMILES,InchIKey, Alternative Smile and alternative inchiKey.
+	finalOutput = filePath + splitName[0] + "_dataFile.txt";
+	idList, smileList, altSmileList = createLists(path);
+	newFile(smileList,newPath);
+	newFile(altSmileList, newAltPath);
+	inchiKeyList = createInchiKeys(molConvertPath,tempPath,newPath);
+	altInchiKeyList = createInchiKeys(molConvertPath,tempAltPath,newAltPath);
+	makeInchiSmileFile(idList, smileList, altSmileList, inchiKeyList, altInchiKeyList, finalOutput);
 	os.system("rm {}".format(newPath));
 	
 if __name__ == '__main__':

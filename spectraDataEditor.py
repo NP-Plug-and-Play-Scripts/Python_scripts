@@ -38,9 +38,10 @@ def makeSpectraList(spectraPath):
 Adds the info from the spectra infolist (id,smile and inchikey) to the spectra in the spectra list.
 each spectra finds the title which in the case of cfm id is in location 4 for the spectra (so 3 position in a list).
 Finds the spectra id in the given spectrainfo dict, and merges the info. Also adds a IUPAC field when the gets added to the database 
-that way it can be added to the MS2LDA output.
+that way it can be added to the MS2LDA output. In case the smiles string was charged 2 additional fields are added another smile and inchiKey
+field for the neutral smiles string and its corresponding inchiKey.
 spectraList = list of lists with each list containing a spectra.
-spectraInfo = a dictionary containing the NP-DB idś as key and a list of smile, inchikey combinations as values
+spectraInfo = a dictionary containing the NP-DB ids as key and a list of smile, inchikey combinations as values
 """
 def addSpectraInfo(spectraList,spectraInfo):
     editedSpectraList = [];
@@ -50,21 +51,43 @@ def addSpectraInfo(spectraList,spectraInfo):
         structure_id = cutUpTITLE[0].split("=")[1];
         ID = "ID=" + structure_id;
         newTitle = "TITLE=" + ";".join(cutUpTITLE[1:]);
-        smile = "SMILES=" + spectraInfo[structure_id][0];
-        inchiKey = spectraInfo[structure_id][1];
-        for x in range(len(spectra)):
-            if x < 3:
-                if x == 1:
-                    editedSpectra.append("IUPAC={}".format("Not_Added"));
-                    editedSpectra.append(ID);
-                    editedSpectra.append(newTitle);
-                editedSpectra.append(spectra[x]);
-            elif x == 3:
-                editedSpectra.append(smile);
-                editedSpectra.append(inchiKey);
-            else:
-                editedSpectra.append(spectra[x]);
-        editedSpectraList.append(editedSpectra);
+        spectraData = spectraInfo[structure_id];
+        if len(spectraData) == 2:
+            smile = "SMILES=" + spectraData[0];
+            inchiKey = spectraData[1];
+            for x in range(len(spectra)):
+                if x < 3:
+                    if x == 1:
+                        editedSpectra.append("IUPAC={}".format("Not_Added"));
+                        editedSpectra.append(ID);
+                        editedSpectra.append(newTitle);
+                    editedSpectra.append(spectra[x]);
+                elif x == 3:
+                    editedSpectra.append(smile);
+                    editedSpectra.append(inchiKey);
+                else:
+                    editedSpectra.append(spectra[x]);
+            editedSpectraList.append(editedSpectra);
+        else:
+            smile = "SMILES=" + spectraData[1];
+            neutralSmiles = "NEUTRAL_SMILES=" + spectraData[0];
+            inchiKey = spectraData[3];
+            neutralInchiKey = "NEUTRAL_" + spectraData[3];
+            for x in range(len(spectra)):
+                if x < 3:
+                    if x == 1:
+                        editedSpectra.append("IUPAC={}".format("Not_Added"));
+                        editedSpectra.append(ID);
+                        editedSpectra.append(newTitle);
+                    editedSpectra.append(spectra[x]);
+                elif x == 3:
+                    editedSpectra.append(smile);
+                    editedSpectra.append(neutralSmile);
+                    editedSpectra.append(inchiKey);
+                    editedSpectra.append(neutralInchiKey);
+                else:
+                    editedSpectra.append(spectra[x]);
+            editedSpectraList.append(editedSpectra);
     return editedSpectraList;
             
 """
@@ -75,7 +98,7 @@ def spectraInfoDict(infoPath):
     spectraInfo = {};
     for line in open(infoPath):
         splittedLine = line.split();
-        spectraInfo[splittedLine[0]] = [splittedLine[1], splittedLine[2]];
+        spectraInfo[splittedLine[0]] = splittedLine[1:];
     return spectraInfo;
 
 """
@@ -97,25 +120,22 @@ resultPath = path to the spectra result files
 fileName = beginning part of the file names (ethers_131_part_) 
 """
 def main(smilePath,resultPath,fileName):
-    infoPath = smilePath;
+    nameSplit = fileName.split("_");
+    datafile = "_".join(nameSplit[:-3]);
+    infoPath = smilePath + datafile + "_dataFile.txt";
     spectraPath = resultPath;
     #for file in directory if file ends with 2 numbers followed by _output.mgf save the file in a list.
     #match example   "smiles_1000_part_01_output.mgf"
-    foundInfoFiles = [f for f in os.listdir(infoPath) if re.search(re.escape(fileName) + r'[0-9]{2}_dataFile.txt',f)];
     foundSpectraFiles = [f for f in os.listdir(spectraPath) if re.search(re.escape(fileName) + r'[0-9]{2}_output_normalized_merged.mgf',f)];
-    foundInfoFiles.sort();
     foundSpectraFiles.sort();
-    for x in range(len(foundInfoFiles)):
-        print(foundInfoFiles[x], foundSpectraFiles[x],x);
+    spectraInfo = spectraInfoDict(infoPath);
+    for x in range(len(foundSpectraFiles)):
         spectraFilePath = spectraPath + foundSpectraFiles[x];
-        infoFilePath = infoPath + foundInfoFiles[x];
-        spectraList =makeSpectraList(spectraFilePath);
-        spectraInfo = spectraInfoDict(infoFilePath);
+        spectraList = makeSpectraList(spectraFilePath);
         editedSpectra = addSpectraInfo(spectraList,spectraInfo);
         newFile = spectraFilePath.replace("normalized_merged","MS2LDA_ready");
-        os.system("rm {}".format(infoPath + foundInfoFiles[x]));
         os.system("rm {}".format(spectraPath + foundSpectraFiles[x]));
         writeFile(editedSpectra,newFile);
     
 if __name__ == '__main__':
-    main();
+    main(sys.argv[1],sys.argv[2],sys.argv[3]);

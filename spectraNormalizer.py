@@ -132,7 +132,6 @@ def main(resultPath,fileName):
         spectraList = makeSpectraList(filePath + "" + aFile);
         newFilePath = filePath + "" + newName;
         writeNewFile(newFilePath,spectraList);
-        os.system("rm {}".format(filePath + aFile));
 
 if __name__ == '__main__':
 	main(sys.argv[1],sys.argv[2]);

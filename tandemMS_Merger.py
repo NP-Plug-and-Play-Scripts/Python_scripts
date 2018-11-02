@@ -28,19 +28,13 @@ def spectraMerge(spectraDict):
     keyList = spectraDict.keys();
     keyList.sort();
     prevWeight = 0
-    #for weight in keyList:
-        #combine peaks if they have a weight that is 1 away from eachother. (CHECK THIS PART)
-    #    if -1 == (prevWeight-weight) == 1: 
-    #        spectraDict[weight] = spectraDict[prevWeight] + spectraDict[weight];
-    #        del spectraDict[prevWeight];
-    #    prevWeight = weight; 
     for weight in spectraDict.keys():
         specSum = 0
         #loop through the intensities in the list.
         for intensity in spectraDict[weight]:
             specSum += intensity;
-        #divide the intensity by 3 to normalize the values. (CHANGE THIS FOR FILES TO SEE WHAT THE EFFECT ON THE RESULTS IS)
-        mergedSpec = [weight, round(specSum/3,5)]; 
+        #divide the intensity by the length of the entry to normalize the values.
+        mergedSpec = [weight, round(specSum/len(spectraDict[weight])]; 
         #filter out low intensities (FIGURE OUT A GOOD THRESHOLD)
         if mergedSpec[1] > 120:
             mergedList.append(mergedSpec);
@@ -152,6 +146,7 @@ def main(resultPath, fileName):
     filePath = resultPath;
     foundFiles = [f for f in os.listdir(filePath) if re.search(re.escape(fileName) + r'[0-9]{2}_output_normalized.mgf',f)];
     for aFile in foundFiles:
+        print("Merging: " + filePath + aFile);
         splitName = aFile.split(".");
         newName = splitName[0] + "_merged." + splitName[1];
         spectraList = createSpectraList(filePath + aFile);

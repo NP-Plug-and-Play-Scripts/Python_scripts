@@ -14,6 +14,7 @@ Last edit: 10/10/2018
 """
 import os;
 import sys;
+import multiprocessing;
 import re;
 
 """
@@ -23,12 +24,12 @@ cfmData = path to the cfmData folder
 inName = the name of the Input file
 outPath = path to which the output is written
 """
-def runCFM(cfmPath,cfmData,inName,outPath):
+def runCFM(cfmPath,cfmData,inName,outPath,):
 	cfmMode = cfmPath + "cfm-predict";
 	cfmParam = cfmData + "params_metab_ce_cfm/param_output0.log";
 	cfmConfig = cfmData + "param_config.txt";
 	filePath = cfmData + "smileFile/" + inName;
-	command = "{0} {1} 0.001 {2} {3} 0 {4}&".format(cfmMode,filePath,cfmParam,cfmConfig,outPath);
+	command = "{0} {1} 0.001 {2} {3} 0 {4}".format(cfmMode,filePath,cfmParam,cfmConfig,outPath);
 	os.system(command);
 	#cfmPath/cfm-predict ${cfmData}${smileDir}${newFileName}${value}.txt 0.001 $cfmData/params_metab_ce_cfm/param_output0.log $cfmData/param_config.txt 0 $cfmData/results/${newFileName}${value}_output.mgf&
 
@@ -46,6 +47,7 @@ def getFileList(cfmData,filePattern):
 
 """
 Main method runs all the functions.
+Runs all the differe file parts in seperate jobs and waits for them to all be finished before moving on.
 cfmPath = path to the cfm-d bin folder
 cfmData = path to the cfmData folder
 fileName = pattern that matches the first part of the file "ethers_131_part_" or something similair.
@@ -53,11 +55,20 @@ outputPath = path to the results folder.
 """
 def main(cfmPath, cfmData,fileName,outputPath):
 	fileList = getFileList(cfmData,fileName);
+	#list of running jobs
+	jobs = []
 	for x in range(len(fileList)):
 		newFileName = fileList[x].replace(".txt","_output.mgf");
 		newFilePath = outputPath + newFileName;
-		runCFM(cfmPath,cfmData,fileList[x],newFilePath)
+		#creates a process object out of runCFM ands adds the job to a list of jobs. this way 
+		job = multiprocessing.Process(target=runCFM, args=(cfmPath,cfmData,fileList[x],newFilePath))
+		jobs.append(job)
+		#start the job.
+		job.start()
+	#This loop makes it so the script doesnt continue before all processes are finished.
+	for job in jobs:
+		job.join()
 
 if __name__ == '__main__':
-    main(sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4]);
+	main(sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4]);
 
