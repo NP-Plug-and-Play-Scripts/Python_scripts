@@ -29,13 +29,15 @@ def lineDivider(sortedList):
 	fileLength = len(sortedList);
 	fileNum = 1;
 	partitionDict = {};
-	for x in range(fileLength/2):
+	for x in range(int(round(fileLength/2))):
 		# if the fileNum is already in the dict append the existing list belonging to the key
 		if fileNum in partitionDict.keys():
 			#add the Xth entry of a list to the dict
+			print(sortedList[x])
 			partitionDict[fileNum].append(sortedList[x]);
 			#add the Xth entry at the end of a list to the dict 
 			#example: list = [1,2,3,4,5] index 0 would be 1 from the start and index -1 would be 5 so to get that its -x-1 (-0 -1 = -1) 
+			print(sortedList[-x-1])
 			partitionDict[fileNum].append(sortedList[-x-1]);
 		# if the fileNum is not a key in the dict add at with the values at the given index as a list of values.
 		else:
@@ -47,7 +49,7 @@ def lineDivider(sortedList):
 			fileNum += 1;
 	#in case the list has a uneven number of lines add the remaining line to the next file.
 	if fileLength%2 != 0:
-		partitionDict[fileNum].append(sortedList[fileLength/2]);
+		partitionDict[fileNum].append(sortedList[int(fileLength/2)-1]);
 	return partitionDict;
 """
 takes  a file and adds all lines to a list. Then sorts the List based on length.
@@ -66,7 +68,7 @@ in individual files. So the values belonging to Key 1 will be added a file and t
 """
 def createFiles(partDict,smileFile,newPath):
 	fileName = smileFile.split("/")[-1].split(".")[0];
-	newFileName = fileName + "_" + str(fileLength/cores) + "_part_";
+	newFileName = fileName + "_" + str(int(round(fileLength/cores))) + "_part_";
 	for part in partDict.keys():
 		#formats the number in a way that instead of being 0,1,2,3 it will be 00,01,02,03
 		partNum = "{0:02d}".format(part-1)
