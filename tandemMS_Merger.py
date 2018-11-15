@@ -34,7 +34,7 @@ def spectraMerge(spectraDict):
         for intensity in spectraDict[weight]:
             specSum += intensity;
         #divide the intensity by the length of the entry to normalize the values.
-        mergedSpec = [weight, round(specSum/len(spectraDict[weight])]; 
+        mergedSpec = [weight, round(specSum/len(spectraDict[weight]))]; 
         #filter out low intensities (FIGURE OUT A GOOD THRESHOLD)
         if mergedSpec[1] > 120:
             mergedList.append(mergedSpec);

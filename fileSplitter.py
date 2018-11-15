@@ -33,11 +33,9 @@ def lineDivider(sortedList):
 		# if the fileNum is already in the dict append the existing list belonging to the key
 		if fileNum in partitionDict.keys():
 			#add the Xth entry of a list to the dict
-			print(sortedList[x])
 			partitionDict[fileNum].append(sortedList[x]);
 			#add the Xth entry at the end of a list to the dict 
 			#example: list = [1,2,3,4,5] index 0 would be 1 from the start and index -1 would be 5 so to get that its -x-1 (-0 -1 = -1) 
-			print(sortedList[-x-1])
 			partitionDict[fileNum].append(sortedList[-x-1]);
 		# if the fileNum is not a key in the dict add at with the values at the given index as a list of values.
 		else:

@@ -82,7 +82,7 @@ def addSpectraInfo(spectraList,spectraInfo):
                     editedSpectra.append(spectra[x]);
                 elif x == 3:
                     editedSpectra.append(smile);
-                    editedSpectra.append(neutralSmile);
+                    editedSpectra.append(neutralSmiles);
                     editedSpectra.append(inchiKey);
                     editedSpectra.append(neutralInchiKey);
                 else:

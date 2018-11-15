@@ -50,7 +50,6 @@ def createLists(path):
 			splittedLine = line.split(" ");
 		elif path.endswith(".csv"):
 			splittedLine = line.split(",");
-		print(splittedLine)
 		idList.append(splittedLine[0]);
 		if len(splittedLine) > 2:
 			smileList.append(splittedLine[1]);
@@ -117,7 +116,7 @@ def main(molConvertPath,filePath, fileName, fileNumber):
 	tempInchiPath = filePath + "tempInchiKeys_" + fileNumber + ".txt";
 	tempNeutralInchiPath = filePath + "tempNeutralInchiKeys_" + fileNumber + ".txt";
 	#new path for the output of the dataFile. Will contain the ID,SMILES,InchIKey, neutral Smiles and  neutral inchiKey.
-	finalOutput = filePath + splitName[0] + "_dataFile_" + fileNumber + ".txt";
+	finalOutput = filePath + splitName[0] + "_dataFile.txt";
 	#get a idList a smileList and altSmileList from the function createLists using the path to the smilesFile.
 	idList, smileList, neutralSmileList = createLists(path);
 	#turns the smileList and neutralSmileList in to kekule form.

@@ -54,22 +54,22 @@ def main():
 	"""STEP 3"""
 	#create inchi keys and add them to a file containing a DB id and smiles string
 	print("creating inchiKeys");
-	createInchiKeys.main(molConvertPath, smilePath, "Steroids_and_derivatives_neutralized.csv");
+	#createInchiKeys.main(molConvertPath, smilePath, "Steroids_and_derivatives_neutralized.csv");
 	print("inchiKeys created!");
 	"""STEP 4"""
 	#run CFM_ID
 	print("getting ready to run CFM-ID");
-	CFMrunner.main(cfmPath,cfmDataPath,fileName,resultPath);
+	#CFMrunner.main(cfmPath,cfmDataPath,fileName,resultPath);
 	print("Done running CFM_ID!");
 	"""STEP 5"""
 	#run spectraNormalizer
 	print("normalizing spectra");
-	spectraNormalizer.main(resultPath,fileName);
+	#spectraNormalizer.main(resultPath,fileName);
 	print("done normalizing");
 	"""STEP 6"""
 	#run spectraMerger
 	print("merging the spectra")
-	tandemMS_Merger.main(resultPath,fileName);
+	#tandemMS_Merger.main(resultPath,fileName);
 	print("merging done!");
 	"""STEP 7"""
 	#run spectraDataEditor
@@ -79,7 +79,7 @@ def main():
 	"""STEP 8"""
 	#put all files together again.
 	print("combining files");
-	#fileMerger.main(resultPath,fileName);
+	fileMerger.main(resultPath,fileName);
 	print("Files now combined!");
 	print("End of pipeline, have a nice day!");
 

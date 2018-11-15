@@ -5,6 +5,7 @@ import re
 import multiprocessing;
 import fileSplitter;
 import inchiKeyCreator3;
+import InchiKeyFileMerger;
 
 
 """
@@ -39,8 +40,7 @@ def main(molconvertPath,filePath, csvSmileFile):
 	for job in jobs:
 		job.join();
 	print('*** All jobs finished ***');
-
-    
+	InchiKeyFileMerger.main(filePath,filePattern);
 
 if __name__ == '__main__':
 	main(sys.argv[1],sys.argv[2],sys.argv[3])

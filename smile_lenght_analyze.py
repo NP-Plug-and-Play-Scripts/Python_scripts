@@ -81,7 +81,8 @@ def calcMedian(sortedList, totalLines):
         # by adding 0.5 we would get the middle number but since we work in python to get the middle number of a list its the number -1
         # so i remove 0.5 to get that number instantly.
         #example  5/2 = 2.5  the middle number is 3 so 2.5 + 0.5 but in python a list of 5 numbers is 0,1,2,3,4 so the middle one is 2 
-        middle = totalLines/2 - 0.5
+        print(totalLines);
+        middle = int(totalLines/2 - 0.5)
         middleLen = sortedList[middle]
         return middleLen
         
@@ -102,6 +103,7 @@ def calcQuarters(sortedList, totalLines):
     for i in range(quarter):
         smallTot += smallQ[i]["length"];
         largeTot += largeQ[i]["length"];
+    print(quarter);
     smallMean = smallTot/quarter;
     largeMean = largeTot/quarter;
     #returns the smallMean and largeMean
@@ -119,9 +121,9 @@ def getSmallest(sortedList):
 def main():
     path  = "/mnt/scratch/ozing003/CFM_workplace/cfmData/smileFile/";
     #for each file in the path check if it ends with 2 digits and .txt and save them in a list
-    foundFiles = [f for f in os.listdir(path) if re.search(r'\w*[0-9]{2}.txt',f)]
+    foundFiles = [f for f in os.listdir(path) if re.search(r'smallSmile.txt',f)]
     #open new file
-    newfile = open(path + "summary.txt", "w");
+    newfile = open(path + "summary_small.txt", "w");
     # for each file in the list run analyzeFile and then write the output to the new file
     for file in foundFiles:
         newfile.write(analyzeFile(path + "/" + file));
