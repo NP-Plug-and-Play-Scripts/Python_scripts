@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 
 """
-This script turns a file of NP-ID and SMILES strings combinations in to a file that contains NP-ID, SMILES and InchiKey.
+This script turns a file of NP-ID and SMILES strings combinations in to a file that contains NP-ID, SMILES and InchiKey or NP-ID, neutral SMILES, SMILES, neutral InchiKey, Inchikey.
 WARNING this requires molconvert a tool included in jchem. https://chemaxon.com/products/instant-jchem/download. 
 
-CFM_pipeline step 2:
+CFM_pipeline step 3:
 Second step in the pipeline. takes each of the splitted files and adds the inchi keys to it so they can later be added to the mgf files.
 next script run is CFMrunner.py.
 
 Made by: Rutger Ozinga 
-Last edit: 11/13/2018
+Last edit: 22/11/2018
 """
 import os;
 import re;
@@ -103,8 +103,12 @@ def makeInchiSmileFile(idList,smileList,altSmileList,inchiKeyList, altInchiKeyLi
 			finalOut.write(newLine);
 	print("Data succesfully writen to a new file.")
 	finalOut.close();
-	
-def main(molConvertPath,filePath, fileName, fileNumber):
+
+"""
+main method runs the entire inchiKeyCreator. requires a path to molConvert, a path (path to the file directory) and a file name (name of the file)
+file Number is optional depending on if you run it with the pipeline or not.  this makes it so the temporary files dont overwrite eachother.
+"""
+def main(molConvertPath,filePath, fileName, fileNumber = ""):
 	start = time.time()
 	print('working in ' + filePath + fileName);
 	splitName = fileName.split(".");
@@ -125,8 +129,9 @@ def main(molConvertPath,filePath, fileName, fileNumber):
 	#creates 2 new file swith the lists of kekuleSmiles.
 	newFile(kekuleSmileList,newSmilePath);
 	newFile(neutralKekuleSmileList, newNeutralSmilePath);
-	#creates a list of inchiKeys from the 
+	#creates a list of inchiKeys with the createInchiKey method using the smiles.
 	inchiKeyList = createInchiKeys(molConvertPath,tempInchiPath,newSmilePath);
+    #creates a list of neutral inchiKeys with the createInchiKey method using the neutral smiles.
 	neutralInchiKeyList = createInchiKeys(molConvertPath,tempNeutralInchiPath,newNeutralSmilePath);
 	makeInchiSmileFile(idList, smileList, neutralSmileList, inchiKeyList, neutralInchiKeyList, finalOutput);
 	os.system("rm {}".format(newSmilePath));

@@ -4,6 +4,7 @@ import os
 import re
 import multiprocessing;
 import fileSplitter;
+import smiles_neutralizer;
 import inchiKeyCreator3;
 import InchiKeyFileMerger;
 
@@ -24,9 +25,11 @@ def main(molconvertPath,filePath, csvSmileFile):
 	#path to the csv file
 	csvPath = filePath + csvSmileFile;
 	#file name without .csv 
-	filePattern = csvSmileFile.split(".")[0];
+	
 	#splits the file in to multiple parts
-	fileSplitter.main(csvPath);
+	outpath = smiles_neutralizer.main(csvPath);
+	filePattern = outpath.split(".")[0].split("/")[0];
+	fileSplitter.main(outpath);
 	#runs getFileList with the path and filePattern
 	fileList = getFileList(filePath,filePattern);
 	fileList.sort();
@@ -40,7 +43,9 @@ def main(molconvertPath,filePath, csvSmileFile):
 	for job in jobs:
 		job.join();
 	print('*** All jobs finished ***');
-	InchiKeyFileMerger.main(filePath,filePattern);
+	InchiKeyFileMerger.main(filePath,filePattern)
+
+    
 
 if __name__ == '__main__':
 	main(sys.argv[1],sys.argv[2],sys.argv[3])
