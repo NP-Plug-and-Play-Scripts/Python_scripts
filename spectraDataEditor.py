@@ -34,6 +34,7 @@ def makeSpectraList(spectraPath):
         else: 
             spectra.append(line.strip());
     return spectraList;
+    
 """
 Adds the info from the spectra infolist (id,smile and inchikey) to the spectra in the spectra list.
 each spectra finds the title which in the case of cfm id is in location 4 for the spectra (so 3 position in a list).
@@ -48,7 +49,9 @@ def addSpectraInfo(spectraList,spectraInfo):
     for spectra in spectraList:
         editedSpectra = [];
         cutUpTITLE = spectra[3].split(";");
+        print(cutUpTITLE);
         structure_id = cutUpTITLE[0].split("=")[1];
+        print(structure_id);
         ID = "ID=" + structure_id;
         newTitle = "TITLE=" + ";".join(cutUpTITLE[1:]);
         spectraData = spectraInfo[structure_id];
@@ -69,13 +72,16 @@ def addSpectraInfo(spectraList,spectraInfo):
                     editedSpectra.append(spectra[x]);
             editedSpectraList.append(editedSpectra);
         else:
-            smile = "SMILES=" + spectraData[1];
+            #the spectraData consists of neutralSmile, smile, neutralInchiKey, inchiKey
             neutralSmiles = "NEUTRAL_SMILES=" + spectraData[0];
+            smile = "SMILES=" + spectraData[1];
+            neutralInchiKey = "NEUTRAL_" + spectraData[2];
             inchiKey = spectraData[3];
-            neutralInchiKey = "NEUTRAL_" + spectraData[3];
+            #adds the new info between the already existing info in the spectra.
             for x in range(len(spectra)):
                 if x < 3:
                     if x == 1:
+                        #IUPAC. Add the IUPAC Key here in the format to add it to the MGF output file.
                         editedSpectra.append("IUPAC={}".format("Not_Added"));
                         editedSpectra.append(ID);
                         editedSpectra.append(newTitle);

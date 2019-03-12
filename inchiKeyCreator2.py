@@ -5,15 +5,15 @@ import sys
 import re
 
 """
-This script turns a file of NP-ID and SMILES strings combinations in to a file that contains NP-ID, SMILES and InchiKey.
+This script turns a file of NP-ID and SMILES strings combinations in to a file that contains NP-ID, SMILES and InchiKey. or NP-ID, neutral SMILES, SMILES, neutral InchiKey, InchiKey.
 WARNING this requires molconvert a tool included in jchem. https://chemaxon.com/products/instant-jchem/download. 
 
-CFM_pipeline step 2:
+CFM_pipeline step 3:
 Second step in the pipeline. takes each of the splitted files and adds the inchi keys to it so they can later be added to the mgf files.
 next script run is CFMrunner.py.
 
 Made by: Rutger Ozinga 
-Last edit: 10/10/2018
+Last edit: 22/11/2018
 """
 import os;
 import re;
@@ -53,6 +53,10 @@ def newFile(smileList,newPath):
 		newFile.write(line + "\n");
 	newFile.close();
 
+"""
+creates inchiKeys with the path to molConvert, a tempPath for temporary files and a path to the smilestrings.
+runs molconvert for each smile seperatly (takes ages).
+"""
 def createInchiKeys(molConvertPath,tempPath,smilePath):
 	newOut = tempPath;
 	print("Generating InchiKeys for " + smilePath)

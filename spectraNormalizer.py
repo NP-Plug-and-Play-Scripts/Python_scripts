@@ -4,7 +4,7 @@
 Takes the mgf spectra files made with cfm Id and normalizes them on a scale from 0 to 900. Writes the output to new file.
 requires the path to the spectra and a name pattern (for example, ether_131_part_). 
 
-CFM_pipeline Part 4:
+CFM_pipeline Part 5:
 Fourth part of the pipeline is dependant on the output of CFMrunner.py. Requires the spectra output files. next part in the pipeline is 
 tandemMS_Merger.py.
 Made by: Rutger Ozinga 
@@ -34,7 +34,7 @@ def makeSpectraList(filePath):
                 weightList, normList = normalizeSpectra(spectra);
                 adv_normList = advancedNormalization(normList);
                 #zips the list of weights and normalizations together.
-                spectraZip = zip(weightList,adv_normList);
+                spectraZip = list(zip(weightList,adv_normList));
                 #sends the spectra (list of all the lines in the spectra) and the spectraZip to the method remakeSpectra.
                 spectraList.append(remakeSpectra(spectra,spectraZip));
                 spectra = [];

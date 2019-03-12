@@ -53,8 +53,6 @@ The generated file gets deleted in the end.
 
 """
 def createInchiKeys(molConvertPath,tempPath,smilePath):
-
-	print(newPath)
 	#run commandline program molconvert to turn a file of smiles strings in to a file of inchikeys.
 	os.system("{0} -2:e inchikey {1} -o {2}".format(molConvertPath + "molconvert" ,smilePath,tempPath));
 	inchiKeyList = [];
@@ -93,8 +91,8 @@ def main(molConvertPath,filePath, fileName):
 	#new path for the output of the dataFile. Will contain the ID,SMILES,InchIKey, Alternative Smile and alternative inchiKey.
 	finalOutput = filePath + splitName[0] + "_dataFile.txt";
 	idList, smileList, altSmileList = createLists(path);
-	newFile(smileList,newPath);
-	newFile(altSmileList, newAltPath);
+	newFile(smileList,smilePath);
+	newFile(altSmileList, smileAltPath);
 	inchiKeyList = createInchiKeys(molConvertPath,tempPath,smilePath);
 	altInchiKeyList = createInchiKeys(molConvertPath,tempAltPath,smileAltPath);
 	makeInchiSmileFile(idList, smileList, altSmileList, inchiKeyList, altInchiKeyList, finalOutput);

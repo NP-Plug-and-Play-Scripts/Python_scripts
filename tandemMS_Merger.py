@@ -3,7 +3,7 @@
 """
 Merges the output of cfm-id (mgf format), which contains 3 different energy level, in to one spectra.
 
-CFM_pipeline Part 5:
+CFM_pipeline Part 6:
 takes the output of spectraNormalizer and merges the normalized spectra of each molecule (cfm creates 3 spectra for each molecule on 3 energy levels.)
 It creates new files containing the normalized merged spectra. next step in the pipeline is spectraDataEditor.py.
 
@@ -19,14 +19,14 @@ energyList = [10,20,40];
 
 """
 Merges a dict containing weights as key and a list of intensities as value. in to a weight with a single intensity.
-also combines weights that are similar enough (currently put on a range of 1 of eachother) and removes the entries with a intensity below 0.7.
+also combines weights that are similar enough (currently put on a range of 1 of eachother) and removes the entries with a intensity below the user given cutoff value.
 teruns a list of sorted weights (low to high).
 """
-def spectraMerge(spectraDict):
+def spectraMerge(spectraDict,cutoff):
     mergedList = [];
     #iterate over all keys in the dict. In this case the weights
     keyList = spectraDict.keys();
-    keyList.sort();
+    keyList = sorted(keyList);
     prevWeight = 0
     for weight in spectraDict.keys():
         specSum = 0
@@ -35,8 +35,8 @@ def spectraMerge(spectraDict):
             specSum += intensity;
         #divide the intensity by the length of the entry to normalize the values.
         mergedSpec = [weight, round(specSum/len(spectraDict[weight]))]; 
-        #filter out low intensities (FIGURE OUT A GOOD THRESHOLD)
-        if mergedSpec[1] > 120:
+        #filter out low intensities with a user given cutoff value
+        if mergedSpec[1] > cutoff:
             mergedList.append(mergedSpec);
         specSum = 0;
     mergedList.sort();
@@ -57,7 +57,7 @@ All peaks with the same weight are combined and the intensities added to the lis
 it returns the dict.
 
 """
-def combineSpectraSet(spectraSet):
+def combineSpectraSet(spectraSet,cutoff):
     combinedSpectra = [];
     spectraDict = {};
     for x in range(3):
@@ -81,7 +81,7 @@ def combineSpectraSet(spectraSet):
                 # create a new array of intensities in the dict with the given weight as key
                 spectraDict[float(splitSpectra[0])] = [float(splitSpectra[1])];
     #calls the method spectraMerge which will merge the dict in to a List of lists of weight spectra combinations.
-    mergedList = spectraMerge(spectraDict);
+    mergedList = spectraMerge(spectraDict, cutoff);
     #loops through the list of lists and adds the spectra to a list containing strings.
     for spectra in mergedList:
         combinedSpectra.append(str(spectra[0]) + " " + str(spectra[1]));
@@ -93,7 +93,7 @@ takes a list of spectra and each step it takes 3 spectra (belonging to low mediu
 then combines them in a list and sends the list of 3 spectra to the function combineSpectraSet.
 returns the combined colllection of the spectra (so 3 spectra combined in to 1 done for all the spectra in spectaList).
 """      
-def createSpectraSets(spectraList):
+def createSpectraSets(spectraList,cutoff):
     combinedCollection = [];
     listLen = len(spectraList);
     spectraSet = [];
@@ -103,7 +103,7 @@ def createSpectraSets(spectraList):
         spectraSet.append(spectraList[i+1]);
         spectraSet.append(spectraList[i+2]);
         #add the output of combineSpectra to list of combined spectra.
-        combinedCollection.append(combineSpectraSet(spectraSet));
+        combinedCollection.append(combineSpectraSet(spectraSet,cutoff));
         #empty spectraSet for the next 3 spectra in the loop.
         spectraSet = [];
     return combinedCollection;
@@ -142,7 +142,7 @@ main method runs the other methods.
 requires the path to a the result folder that contains the mass spectra 
 and the common part of the name of the file "ethers_131_part_" for example.
 """ 
-def main(resultPath, fileName):
+def main(resultPath, fileName, optionDict):
     filePath = resultPath;
     foundFiles = [f for f in os.listdir(filePath) if re.search(re.escape(fileName) + r'[0-9]{2}_output_normalized.mgf',f)];
     for aFile in foundFiles:
@@ -151,7 +151,7 @@ def main(resultPath, fileName):
         newName = splitName[0] + "_merged." + splitName[1];
         spectraList = createSpectraList(filePath + aFile);
         #contains all the combined spectra in a list of lists.
-        combiSpecCol = createSpectraSets(spectraList);
+        combiSpecCol = createSpectraSets(spectraList,optionDict[cutoff_intensity]);
         newFilePath = filePath + "" + newName;
         writeNewFile(newFilePath,combiSpecCol);
         os.system("rm {}".format(filePath + aFile));
